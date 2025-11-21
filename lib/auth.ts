@@ -115,16 +115,16 @@ const getSession = async (
 ): Promise<Session | null> => {
 	const now = new Date();
 
-  const rows = databaseConnection.prepare(`
+  const row = databaseConnection.prepare(`
 		SELECT id, secret_hash, created_at 
     FROM session 
     WHERE id = ?
-  `).all(sessionId) as SessionRow[];
+  `).get(sessionId) as SessionRow | undefined;
 
-	if (rows.length !== 1) {
+	if (!row) {
 		return null;
 	}
-	const row = rows[0];
+
 	const session: Session = {
 		id: row.id,
 		secretHash: row.secret_hash,
@@ -145,7 +145,9 @@ async function deleteSession(dbPool: DBPool, sessionId: string): Promise<void> {
 }
 
 
-const hashSecret = async (secret: string): Promise<Uint8Array> => {
+const hashSecret = async (
+  secret: string
+): Promise<Uint8Array> => {
   const secretBytes = new TextEncoder().encode(secret);
   const secretHashBuffer = await crypto.subtle.digest("SHA-256", secretBytes);
   return new Uint8Array(secretHashBuffer);
