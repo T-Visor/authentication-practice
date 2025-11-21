@@ -11,6 +11,12 @@ interface SessionWithToken extends Session {
   token: string;
 }
 
+interface SessionRow { // Database schema
+  id: string;
+  secret_hash: Uint8Array;
+  created_at: number;
+}
+
 const DATABASE_NAME = "authentication.db";
 const DATABASE_INSTANCE: SQLiteDatabase = new Database(DATABASE_NAME);
 const SESSION_EXPIRATION_IN_SECONDS = 60 * 60 * 24; // 1 day
@@ -89,7 +95,7 @@ const validateSessionToken = async (
   const sessionId = tokenParts[0];
   const sessionSecret = tokenParts[1];
 
-  const session = await getSession(dbPool, sessionId);
+  const session = await getSession(databaseConnection, sessionId);
   if (!session) {
     return null;
   }
@@ -109,23 +115,24 @@ const getSession = async (
 ): Promise<Session | null> => {
 	const now = new Date();
 
-	const result = await executeQuery(
-		dbPool,
-		"SELECT id, secret_hash, created_at FROM session WHERE id = ?",
-		[sessionId]
-	);
-	if (result.rows.length !== 1) {
+  const rows = databaseConnection.prepare(`
+		SELECT id, secret_hash, created_at 
+    FROM session 
+    WHERE id = ?
+  `).all(sessionId) as SessionRow[];
+
+	if (rows.length !== 1) {
 		return null;
 	}
-	const row = result.rows[0];
+	const row = rows[0];
 	const session: Session = {
-		id: row[0],
-		secretHash: row[1],
-		createdAt: new Date(row[2] * 1000)
+		id: row.id,
+		secretHash: row.secret_hash,
+		createdAt: new Date(row.created_at * 1000)
 	};
 
 	// Check expiration
-	if (now.getTime() - session.createdAt.getTime() >= sessionExpiresInSeconds * 1000) {
+	if (now.getTime() - session.createdAt.getTime() >= SESSION_EXPIRATION_IN_SECONDS * 1000) {
 		await deleteSession(sessionId);
 		return null;
 	}
