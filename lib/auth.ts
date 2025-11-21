@@ -11,7 +11,7 @@ interface SessionWithToken extends Session {
   token: string;
 }
 
-interface SessionRowFromDatabase { // Database schema
+interface SessionRowFromDatabase {
   id: string;
   secret_hash: Uint8Array;
   created_at: number;
@@ -68,11 +68,10 @@ const createSession = async (
     token
   };
 
-  const sqlInsert = DATABASE_INSTANCE.prepare(`
+  const sqlInsert = databaseConnection.prepare(`
     INSERT INTO session (id, secret_hash, created_at) 
     VALUES (?, ?, ?)`
   );
-
   sqlInsert.run(
     session.id,
     session.secretHash,
@@ -138,15 +137,13 @@ const getSession = (
 	}
 
 	return session;
-}
+};
 
 const deleteSession = (
   databaseConnection: SQLiteDatabase, 
   sessionId: string
 ): void => {
-  databaseConnection.prepare(`
-    DELETE FROM session WHERE id = ?
-  `).run(sessionId);	
+  databaseConnection.prepare("DELETE FROM session WHERE id = ?").run(sessionId);	
 };
 
 const hashSecret = async (
@@ -155,4 +152,34 @@ const hashSecret = async (
   const secretBytes = new TextEncoder().encode(secret);
   const secretHashBuffer = await crypto.subtle.digest("SHA-256", secretBytes);
   return new Uint8Array(secretHashBuffer);
+};
+
+const constantTimeEqual = (
+  first: Uint8Array, 
+  second: Uint8Array
+): boolean => {
+  // If lengths differ, arrays cannot be equal.
+	if (first.byteLength !== second.byteLength) {
+		return false;
+	}
+
+  // Accumulates XOR results of all byte comparisons.
+  // If any byte differs, it becomes non-zero.
+	let differenceMask = 0;
+
+	for (let i = 0; i < first.byteLength; i++) {
+		differenceMask |= first[i] ^ second[i];
+	}
+
+  // Arrays are equal only if diff remains zero.
+	return differenceMask === 0; 
+};
+
+const encodeSessionPublicJSON = (session: Session): string => {
+	// Omit Session.secretHash
+	const json = JSON.stringify({
+		id: session.id,
+		created_at: Math.floor(session.createdAt.getTime() / 1000)
+	});
+	return json;
 };
