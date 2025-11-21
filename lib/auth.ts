@@ -11,7 +11,7 @@ interface SessionWithToken extends Session {
   token: string;
 }
 
-interface SessionRow { // Database schema
+interface SessionRowFromDatabase { // Database schema
   id: string;
   secret_hash: Uint8Array;
   created_at: number;
@@ -95,7 +95,7 @@ const validateSessionToken = async (
   const sessionId = tokenParts[0];
   const sessionSecret = tokenParts[1];
 
-  const session = await getSession(databaseConnection, sessionId);
+  const session = getSession(databaseConnection, sessionId);
   if (!session) {
     return null;
   }
@@ -109,17 +109,17 @@ const validateSessionToken = async (
   return session;
 };
 
-const getSession = async (
+const getSession = (
   databaseConnection: SQLiteDatabase, 
   sessionId: string
-): Promise<Session | null> => {
+): Session | null => {
 	const now = new Date();
 
   const row = databaseConnection.prepare(`
 		SELECT id, secret_hash, created_at 
     FROM session 
     WHERE id = ?
-  `).get(sessionId) as SessionRow | undefined;
+  `).get(sessionId) as SessionRowFromDatabase | undefined;
 
 	if (!row) {
 		return null;
@@ -133,17 +133,21 @@ const getSession = async (
 
 	// Check expiration
 	if (now.getTime() - session.createdAt.getTime() >= SESSION_EXPIRATION_IN_SECONDS * 1000) {
-		await deleteSession(sessionId);
+		deleteSession(databaseConnection, sessionId);
 		return null;
 	}
 
 	return session;
 }
 
-async function deleteSession(dbPool: DBPool, sessionId: string): Promise<void> {
-	await executeQuery(dbPool, "DELETE FROM session WHERE id = ?", [sessionId]);
-}
-
+const deleteSession = (
+  databaseConnection: SQLiteDatabase, 
+  sessionId: string
+): void => {
+  databaseConnection.prepare(`
+    DELETE FROM session WHERE id = ?
+  `).run(sessionId);	
+};
 
 const hashSecret = async (
   secret: string
