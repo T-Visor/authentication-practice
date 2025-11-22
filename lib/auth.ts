@@ -4,6 +4,7 @@ import type { Database as SQLiteDatabase } from "better-sqlite3";
 interface Session {
   id: string;
   secretHash: Uint8Array; // Byte array
+  lastVerifiedAt: Date;
   createdAt: Date;
 }
 
@@ -14,12 +15,14 @@ interface SessionWithToken extends Session {
 interface SessionFromDatabase {
   id: string;
   secret_hash: Uint8Array;
+  last_verified_at: number;
   created_at: number;
 }
 
 const DATABASE_NAME = "authentication.db";
 const DATABASE_INSTANCE: SQLiteDatabase = new Database(DATABASE_NAME);
-const SESSION_EXPIRATION_IN_SECONDS = 60 * 60 * 24; // 1 day
+const SESSION_EXPIRATION_IN_SECONDS = 60 * 60 * 24 * 10; // 10 days
+const ACTIVITY_CHECK_INTERVAL_IN_SECONDS = 60 * 60;
 const WEBSITE_DOMAIN = "example.com";
 
 const main = () => {
@@ -27,6 +30,7 @@ const main = () => {
     CREATE TABLE IF NOT EXISTS session (
 	    id TEXT NOT NULL PRIMARY KEY,
 	    secret_hash BLOB NOT NULL, -- blob is a SQLite data type for raw binary
+      last_verified_at INTEGER NOT NULL, -- unix (seconds)
 	    created_at INTEGER NOT NULL -- unix time (seconds)
     ) STRICT;
   `);
@@ -65,17 +69,19 @@ const createSession = async (
   const session: SessionWithToken = {
     id,
     secretHash,
+    lastVerifiedAt: now,
     createdAt: now,
     token
   };
 
   const sqlInsert = databaseConnection.prepare(`
-    INSERT INTO session (id, secret_hash, created_at) 
-    VALUES (?, ?, ?)`
+    INSERT INTO session (id, secret_hash, last_verified_at, created_at) 
+    VALUES (?, ?, ?, ?)`
   );
   sqlInsert.run(
     session.id,
     session.secretHash,
+    Math.floor(session.lastVerifiedAt.getTime() / 1000),
     Math.floor(session.createdAt.getTime() / 1000)
   );
 
@@ -106,45 +112,59 @@ const validateSessionToken = async (
     return null;
   }
 
+  const now = new Date();
+  if (now.getTime() - session.lastVerifiedAt.getTime() >= ACTIVITY_CHECK_INTERVAL_IN_SECONDS * 1000) {
+    session.lastVerifiedAt = now;
+
+    const sqlUpdate = databaseConnection.prepare(`
+      UPDATE session SET last_verified_at = ? WHERE id = ? 
+    `);
+    sqlUpdate.run(
+      Math.floor(session.lastVerifiedAt.getTime() / 1000),
+      sessionId
+    );
+  }
+
   return session;
 };
 
 const getSession = (
-  databaseConnection: SQLiteDatabase, 
+  databaseConnection: SQLiteDatabase,
   sessionId: string
 ): Session | null => {
-	const now = new Date();
+  const now = new Date();
 
   const row = databaseConnection.prepare(`
-		SELECT id, secret_hash, created_at 
+		SELECT id, secret_hash, last_verified_at, created_at 
     FROM session 
     WHERE id = ?
   `).get(sessionId) as SessionFromDatabase | undefined;
 
-	if (!row) {
-		return null;
-	}
+  if (!row) {
+    return null;
+  }
 
-	const session: Session = {
-		id: row.id,
-		secretHash: row.secret_hash,
-		createdAt: new Date(row.created_at * 1000)
-	};
+  const session: Session = {
+    id: row.id,
+    secretHash: row.secret_hash,
+    lastVerifiedAt: new Date(row.last_verified_at * 1000),
+    createdAt: new Date(row.created_at * 1000)
+  };
 
-	// Check expiration
-	if (now.getTime() - session.createdAt.getTime() >= SESSION_EXPIRATION_IN_SECONDS * 1000) {
-		deleteSession(databaseConnection, sessionId);
-		return null;
-	}
+  // Inactivity timeout
+  if (now.getTime() - session.lastVerifiedAt.getTime() >= SESSION_EXPIRATION_IN_SECONDS * 1000) {
+    deleteSession(databaseConnection, sessionId);
+    return null;
+  }
 
-	return session;
+  return session;
 };
 
 const deleteSession = (
-  databaseConnection: SQLiteDatabase, 
+  databaseConnection: SQLiteDatabase,
   sessionId: string
 ): void => {
-  databaseConnection.prepare("DELETE FROM session WHERE id = ?").run(sessionId);	
+  databaseConnection.prepare("DELETE FROM session WHERE id = ?").run(sessionId);
 };
 
 const hashSecret = async (
@@ -156,41 +176,41 @@ const hashSecret = async (
 };
 
 const constantTimeEqual = (
-  first: Uint8Array, 
+  first: Uint8Array,
   second: Uint8Array
 ): boolean => {
   // If lengths differ, arrays cannot be equal.
-	if (first.byteLength !== second.byteLength) {
-		return false;
-	}
+  if (first.byteLength !== second.byteLength) {
+    return false;
+  }
 
   // Accumulates XOR results of all byte comparisons.
   // If any byte differs, it becomes non-zero.
-	let differenceMask = 0;
+  let differenceMask = 0;
 
-	for (let i = 0; i < first.byteLength; i++) {
-		differenceMask |= first[i] ^ second[i];
-	}
+  for (let i = 0; i < first.byteLength; i++) {
+    differenceMask |= first[i] ^ second[i];
+  }
 
   // Arrays are equal only if diff remains zero.
-	return differenceMask === 0; 
+  return differenceMask === 0;
 };
 
 const encodeSessionPublicJSON = (session: Session): string => {
-	// Omit Session.secretHash
-	const json = JSON.stringify({
-		id: session.id,
-		created_at: Math.floor(session.createdAt.getTime() / 1000)
-	});
-	return json;
+  // Omit Session.secretHash
+  const json = JSON.stringify({
+    id: session.id,
+    created_at: Math.floor(session.createdAt.getTime() / 1000)
+  });
+  return json;
 };
 
 const verifyRequestOrigin = (
-  method: string, 
+  method: string,
   originHeader: string
 ): boolean => {
-	if (method === "GET" || method === "HEAD") {
-		return true;
-	}
-	return originHeader === WEBSITE_DOMAIN;
+  if (method === "GET" || method === "HEAD") {
+    return true;
+  }
+  return originHeader === WEBSITE_DOMAIN;
 };
