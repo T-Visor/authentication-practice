@@ -11,7 +11,7 @@ interface SessionWithToken extends Session {
   token: string;
 }
 
-interface SessionRowFromDatabase {
+interface SessionFromDatabase {
   id: string;
   secret_hash: Uint8Array;
   created_at: number;
@@ -20,6 +20,7 @@ interface SessionRowFromDatabase {
 const DATABASE_NAME = "authentication.db";
 const DATABASE_INSTANCE: SQLiteDatabase = new Database(DATABASE_NAME);
 const SESSION_EXPIRATION_IN_SECONDS = 60 * 60 * 24; // 1 day
+const WEBSITE_DOMAIN = "example.com";
 
 const main = () => {
   DATABASE_INSTANCE.exec(`
@@ -118,7 +119,7 @@ const getSession = (
 		SELECT id, secret_hash, created_at 
     FROM session 
     WHERE id = ?
-  `).get(sessionId) as SessionRowFromDatabase | undefined;
+  `).get(sessionId) as SessionFromDatabase | undefined;
 
 	if (!row) {
 		return null;
@@ -182,4 +183,14 @@ const encodeSessionPublicJSON = (session: Session): string => {
 		created_at: Math.floor(session.createdAt.getTime() / 1000)
 	});
 	return json;
+};
+
+const verifyRequestOrigin = (
+  method: string, 
+  originHeader: string
+): boolean => {
+	if (method === "GET" || method === "HEAD") {
+		return true;
+	}
+	return originHeader === WEBSITE_DOMAIN;
 };
