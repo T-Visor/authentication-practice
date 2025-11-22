@@ -214,3 +214,19 @@ const verifyRequestOrigin = (
   }
   return originHeader === WEBSITE_DOMAIN;
 };
+
+const executeQuery = (
+  databaseConnection: SQLiteDatabase,
+  query: string,
+  params: unknown[] = []
+): unknown => {
+  const statement = databaseConnection.prepare(query);
+
+  // Detect read vs write query
+  const isSelect = query.trim().toLowerCase().startsWith("select");
+
+  if (isSelect)
+    return statement.all(...params); // returns rows
+  else
+    return statement.run(...params); // returns info object
+};
