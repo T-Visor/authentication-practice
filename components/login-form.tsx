@@ -86,10 +86,7 @@ const LoginForm = () => {
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel
                     htmlFor="form-rhf-demo-title">
-                    <div className="flex items-center gap-1.5">
-                      <Mail className="size-3.5"/>
-                      Email
-                    </div>
+                    Email
                   </FieldLabel>
                   <Input
                     {...field}
@@ -110,10 +107,7 @@ const LoginForm = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-demo-description">
-                    <div className="flex items-center gap-1.5">
-                      <KeyRound className="size-3.5"/>
-                      Password
-                    </div>                  
+                    Password
                   </FieldLabel>
                   <Input
                     {...field}
