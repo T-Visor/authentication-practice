@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const FORM_ID = "login-form";
 const USERNAME_CHARACTER_MIN = 2;
 const USERNAME_CHARACTER_MAX = 60;
 const PASSWORD_CHARACTER_MIN = 2;
@@ -31,8 +32,8 @@ const PASSWORD_CHARACTER_MAX = 60;
 
 const formSchema = z.object({
   email: z
-    .string()
-    .min(2, `Miniumum characters: ${USERNAME_CHARACTER_MIN}`)
+    .email("Invalid email")
+    .min(4, `Miniumum characters: ${USERNAME_CHARACTER_MIN}`)
     .max(32, `Maximum characters: ${USERNAME_CHARACTER_MAX}`),
   password: z
     .string()
@@ -40,16 +41,16 @@ const formSchema = z.object({
     .max(60, `Maximum characters: ${PASSWORD_CHARACTER_MAX}`),
 });
 
-export default function LoginForm() {
+const LoginForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
     },
-  })
+  });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
     toast("You submitted the following values:", {
       description: (
         <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
@@ -64,18 +65,18 @@ export default function LoginForm() {
         "--border-radius": "calc(var(--radius)  + 4px)",
       } as CSSProperties,
     })
-  }
+  };
 
   return (
     <Card className="w-full sm:max-w-md">
       <CardHeader>
         <CardTitle className="text-xl">Sign In</CardTitle>
         <CardDescription>
-          Enter your credentials below to login
+          Enter your credentials
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id={FORM_ID} onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="email"
@@ -93,6 +94,9 @@ export default function LoginForm() {
                     placeholder="email@example.com"
                     autoComplete="off"
                   />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
                 </Field>
               )}
             />
@@ -110,26 +114,33 @@ export default function LoginForm() {
                     placeholder="Password"
                     aria-invalid={fieldState.invalid}
                   />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
                 </Field>
               )}
             />
             <div className="flex items-center gap-3">
               <Checkbox id="rememberLogin" />
-              <Label htmlFor="rememberLogin">Remember me</Label>
+              <Label htmlFor="rememberLogin">
+                Remember me
+              </Label>
             </div>
+            <Label className="underline hover:cursor-pointer">
+              Forgot password?
+            </Label>
           </FieldGroup>
         </form>
       </CardContent>
       <CardFooter>
         <Field>
-          <Button
-            type="submit"
-            form="form-rhf-demo"
-          >
+          <Button type="submit" form={FORM_ID}>
             Login
           </Button>
         </Field>
       </CardFooter>
     </Card>
-  )
-}
+  );
+};
+
+export default LoginForm;
