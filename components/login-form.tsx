@@ -70,7 +70,7 @@ const LoginForm = () => {
   };
 
   return (
-    <Card className="w-full sm:max-w-md">
+    <Card className="w-full sm:max-w-md dark:bg-gray-800 dark:border-0">
       <CardHeader className="flex flex-col items-center">
         <CardTitle className="text-2xl">Welcome Back</CardTitle>
         <CardDescription>
