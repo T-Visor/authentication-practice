@@ -2,15 +2,33 @@
 
 import LoginForm from "@/components/login-form";
 import SignupForm from "@/components/signup-form";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const HomePage = () => (
-  <div 
+  <div
     className="
       h-screen w-screen overflow-auto
-      flex justify-center items-center
+      flex flex-col justify-center items-center gap-3
     "
   >
-    <SignupForm />
+    <Tabs defaultValue="login" className="w-full">
+      <div className="flex justify-center items-center">
+        <TabsList>
+          <TabsTrigger value="login">Login</TabsTrigger>
+          <TabsTrigger value="signUp">Sign Up</TabsTrigger>
+        </TabsList>
+      </div>
+      <TabsContent value="login">
+        <div className="flex justify-center items-center">
+          <LoginForm />
+        </div>
+      </TabsContent>
+      <TabsContent value="signUp">
+        <div className="flex justify-center items-center">
+          <SignupForm />
+        </div>
+      </TabsContent>
+    </Tabs>
   </div>
 );
 
