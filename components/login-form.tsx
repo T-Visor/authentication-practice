@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { Mail, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -69,10 +70,10 @@ const LoginForm = () => {
 
   return (
     <Card className="w-full sm:max-w-md">
-      <CardHeader>
-        <CardTitle className="text-xl">Sign In</CardTitle>
+      <CardHeader className="flex flex-col items-center">
+        <CardTitle className="text-2xl">Welcome Back</CardTitle>
         <CardDescription>
-          Enter your credentials
+          Sign into your account
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -85,7 +86,10 @@ const LoginForm = () => {
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel
                     htmlFor="form-rhf-demo-title">
-                    Email
+                    <div className="flex items-center gap-1.5">
+                      <Mail className="size-3.5"/>
+                      Email
+                    </div>
                   </FieldLabel>
                   <Input
                     {...field}
@@ -106,7 +110,10 @@ const LoginForm = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-demo-description">
-                    Password
+                    <div className="flex items-center gap-1.5">
+                      <KeyRound className="size-3.5"/>
+                      Password
+                    </div>                  
                   </FieldLabel>
                   <Input
                     {...field}
@@ -120,22 +127,24 @@ const LoginForm = () => {
                 </Field>
               )}
             />
-            <div className="flex items-center gap-3">
-              <Checkbox id="rememberLogin" />
-              <Label htmlFor="rememberLogin">
-                Remember me
+            <div className="flex justify-between">
+              <div className="flex items-center gap-3">
+                <Checkbox id="rememberLogin" />
+                <Label htmlFor="rememberLogin">
+                  Remember me
+                </Label>
+              </div>
+              <Label className="underline hover:cursor-pointer">
+                Forgot password?
               </Label>
             </div>
-            <Label className="underline hover:cursor-pointer">
-              Forgot password?
-            </Label>
           </FieldGroup>
         </form>
       </CardContent>
       <CardFooter>
         <Field>
           <Button type="submit" form={FORM_ID}>
-            Login
+            Sign in
           </Button>
         </Field>
       </CardFooter>
