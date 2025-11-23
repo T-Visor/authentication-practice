@@ -1,6 +1,7 @@
 "use client";
 
 import LoginForm from "@/components/login-form";
+import SignupForm from "@/components/signup-form";
 
 const HomePage = () => (
   <div 
@@ -9,7 +10,7 @@ const HomePage = () => (
       flex justify-center items-center
     "
   >
-    <LoginForm />
+    <SignupForm />
   </div>
 );
 
