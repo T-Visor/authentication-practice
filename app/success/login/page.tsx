@@ -20,11 +20,14 @@ const SuccessPage = async () => {
       "
     >
       <span className="text-5xl">
-        Successful Login!
+        Welcome back!
+      </span>
+      <span className="text-4xl">
+        {session.user.name}
       </span>
     </div>
   );
-}
+};
 
 
 export default SuccessPage;
