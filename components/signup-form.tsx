@@ -87,17 +87,18 @@ const SignupForm = () => {
         name: `${firstName} ${lastName}`,
         email: email,
         password: password,
-        callbackURL: "/success"
       });
 
-      console.log(data);
+      if (error) {
+        throw new Error(error.message || "Invalid Sign-up");
+      }
 
       toast("Login success!");
       router.push("/success");
     }
     catch (error) {
       console.log(error);
-      toast("Failed to login")
+      toast("Failed to Sign up")
     }
     finally {
       setLoading(false);

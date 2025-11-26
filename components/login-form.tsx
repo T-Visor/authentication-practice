@@ -1,11 +1,9 @@
 "use client";
 
-import { CSSProperties } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { Mail, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,7 +22,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth-client"; //import the auth client
+import { authClient } from "@/lib/auth-client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const FORM_ID = "login-form";
 const USERNAME_CHARACTER_MIN = 2;
@@ -44,6 +44,9 @@ const formSchema = z.object({
 });
 
 const LoginForm = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,22 +55,33 @@ const LoginForm = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    toast("You submitted the following values:", {
-      description: (
-        <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-      position: "bottom-right",
-      classNames: {
-        content: "flex flex-col gap-2",
-      },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as CSSProperties,
-    })
+  const onSubmit = async (formData: z.infer<typeof formSchema>) => {
+    const { email, password } = formData;
+
+    setLoading(true);
+
+    try {
+      const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw new Error(error.message || "Invalid email or password");
+      }
+
+      toast("Login success!");
+      router.push("/success");
+    }
+    catch (error) {
+      console.error(error);
+      toast("Failed to login");
+    }
+    finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <Card className="w-full sm:max-w-md dark:bg-gray-800 dark:border-0">
