@@ -91,7 +91,7 @@ const LoginForm = () => {
       </CardHeader>
       <CardContent>
         <form id={FORM_ID} onSubmit={form.handleSubmit(onSubmit)}>
-          <FieldGroup>
+          <FieldGroup aria-disabled={loading}>
             <Controller
               name="email"
               control={form.control}
