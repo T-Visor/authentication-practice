@@ -60,26 +60,24 @@ const LoginForm = () => {
 
     setLoading(true);
 
-    try {
-      const { data, error } = await authClient.signIn.email({
-        email,
-        password,
-      });
+    const { data, error } = await authClient.signIn.email({
+      email,
+      password,
+    }, {
+      onRequest: (context) => {
+        setLoading(true);
+      },
+      onSuccess: (context) => {
+        console.log(data);
+        toast("Login success!");
+        router.push("/success");
+      },
+      onError: (context) => {
+        toast.error("Failed to Sign up");
+      },
+    });
 
-      if (error) {
-        throw new Error(error.message || "Invalid email or password");
-      }
-
-      toast("Login success!");
-      router.push("/success");
-    }
-    catch (error) {
-      console.error(error);
-      toast.error("Failed to login");
-    }
-    finally {
-      setLoading(false);
-    }
+    setLoading(false);
   };
 
 

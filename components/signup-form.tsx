@@ -73,36 +73,32 @@ const SignupForm = () => {
   });
 
   const onSubmit = async (formData: z.infer<typeof formSchema>) => {
-    const { 
-      firstName, 
-      lastName, 
-      email, 
-      password 
+    const {
+      firstName,
+      lastName,
+      email,
+      password
     } = formData;
 
-    setLoading(true);
+    const { data, error } = await authClient.signUp.email({
+      name: `${firstName} ${lastName}`,
+      email: email,
+      password: password,
+    }, {
+      onRequest: (context) => {
+        setLoading(true);
+      },
+      onSuccess: (context) => {
+        console.log(data);
+        toast("Login success!");
+        router.push("/success");
+      },
+      onError: (context) => {
+        toast.error("Failed to login");
+      },
+    });
 
-    try {
-      const { data, error } = await authClient.signUp.email({
-        name: `${firstName} ${lastName}`,
-        email: email,
-        password: password,
-      });
-
-      if (error) {
-        throw new Error(error.message || "Invalid Sign-up");
-      }
-
-      toast("Login success!");
-      router.push("/success");
-    }
-    catch (error) {
-      console.log(error);
-      toast.error("Failed to Sign up");
-    }
-    finally {
-      setLoading(false);
-    }
+    setLoading(false);
   };
 
   return (
@@ -114,12 +110,11 @@ const SignupForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form 
-          id={FORM_ID} 
+        <form
+          id={FORM_ID}
           onSubmit={form.handleSubmit(onSubmit)}
-          aria-disabled={loading}
         >
-          <FieldGroup>
+          <FieldGroup aria-disabled={loading}>
             <div className="flex justify-center items-center gap-4">
               <Controller
                 name="firstName"
