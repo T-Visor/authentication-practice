@@ -58,26 +58,21 @@ const LoginForm = () => {
   const onSubmit = async (formData: z.infer<typeof formSchema>) => {
     const { email, password } = formData;
 
-    setLoading(true);
-
     const { data, error } = await authClient.signIn.email({
       email,
       password,
+      callbackURL: "/success/login"
     }, {
-      onRequest: (context) => {
+      onRequest: () => {
         setLoading(true);
       },
-      onSuccess: (context) => {
-        router.push("/success/login");
-      },
       onError: (context) => {
-        toast.error("Failed to login");
+        toast.error(context.error?.message ?? "Login failed");
+        console.error(context.error?.message);
       },
     });
-
     setLoading(false);
   };
-
 
   return (
     <Card className="w-full sm:max-w-md dark:bg-gray-800 dark:border-0">

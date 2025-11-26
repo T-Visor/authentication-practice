@@ -84,18 +84,16 @@ const SignupForm = () => {
       name: `${firstName} ${lastName}`,
       email: email,
       password: password,
+      callbackURL: "/success/sign-up"
     }, {
-      onRequest: (context) => {
+      onRequest: () => {
         setLoading(true);
       },
-      onSuccess: (context) => {
-        router.push("/success/sign-up");
-      },
       onError: (context) => {
-        toast.error("Failed to sign up");
+        toast.error(context.error?.message ?? "Sign-up failed");
+        console.error(context.error?.message);
       },
     });
-
     setLoading(false);
   };
 
