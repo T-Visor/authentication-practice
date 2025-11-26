@@ -21,6 +21,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client"; //import the auth client
 
 const FORM_ID = "login-form";
 const USERNAME_CHARACTER_MIN = 8;
@@ -57,21 +58,21 @@ const SignupForm = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    toast("You submitted the following values:", {
-      description: (
-        <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-      position: "bottom-right",
-      classNames: {
-        content: "flex flex-col gap-2",
-      },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as CSSProperties,
-    })
+  const onSubmit = async (formData: z.infer<typeof formSchema>) => {
+    const { email, password } = formData;
+
+    try {
+      const { data, error } = await authClient.signUp.email({
+        name: "",
+        email: email,
+        password: password,
+      });
+
+      console.log(data);
+    } 
+    catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -155,7 +156,7 @@ const SignupForm = () => {
       <CardFooter>
         <Field>
           <Button type="submit" form={FORM_ID}>
-            Sign Up
+            Sign up
           </Button>
         </Field>
       </CardFooter>
