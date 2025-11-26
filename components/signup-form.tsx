@@ -89,9 +89,7 @@ const SignupForm = () => {
         setLoading(true);
       },
       onSuccess: (context) => {
-        console.log(data);
-        toast("Login success!");
-        router.push("/success");
+        router.push("/success/sign-up");
       },
       onError: (context) => {
         toast.error("Failed to sign up");
@@ -237,7 +235,11 @@ const SignupForm = () => {
       </CardContent>
       <CardFooter>
         <Field>
-          <Button type="submit" form={FORM_ID}>
+          <Button 
+            disabled={loading}
+            type="submit" 
+            form={FORM_ID}
+          >
             Sign up
           </Button>
         </Field>
