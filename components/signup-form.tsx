@@ -98,7 +98,7 @@ const SignupForm = () => {
     }
     catch (error) {
       console.log(error);
-      toast("Failed to Sign up")
+      toast.error("Failed to Sign up");
     }
     finally {
       setLoading(false);

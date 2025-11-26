@@ -75,7 +75,7 @@ const LoginForm = () => {
     }
     catch (error) {
       console.error(error);
-      toast("Failed to login");
+      toast.error("Failed to login");
     }
     finally {
       setLoading(false);
