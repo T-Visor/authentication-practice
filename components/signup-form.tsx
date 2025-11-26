@@ -1,6 +1,5 @@
 "use client";
 
-import { CSSProperties } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -21,27 +20,37 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client"; //import the auth client
+import { authClient } from "@/lib/auth-client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-const FORM_ID = "login-form";
+const FORM_ID = "signUpForm";
 const USERNAME_CHARACTER_MIN = 8;
 const USERNAME_CHARACTER_MAX = 60;
 const PASSWORD_CHARACTER_MIN = 8;
 const PASSWORD_CHARACTER_MAX = 60;
 
 const formSchema = z.object({
+  firstName: z
+    .string()
+    .min(1)
+    .max(60),
+  lastName: z
+    .string()
+    .min(1)
+    .max(60),
   email: z
     .email("Invalid email")
-    .min(4, `Miniumum characters: ${USERNAME_CHARACTER_MIN}`)
-    .max(32, `Maximum characters: ${USERNAME_CHARACTER_MAX}`),
+    .min(USERNAME_CHARACTER_MIN, `Miniumum characters: ${USERNAME_CHARACTER_MIN}`)
+    .max(USERNAME_CHARACTER_MAX, `Maximum characters: ${USERNAME_CHARACTER_MAX}`),
   password: z
     .string()
-    .min(8, `Minimum characters: ${PASSWORD_CHARACTER_MIN}`)
-    .max(60, `Maximum characters: ${PASSWORD_CHARACTER_MAX}`),
+    .min(PASSWORD_CHARACTER_MIN, `Minimum characters: ${PASSWORD_CHARACTER_MIN}`)
+    .max(PASSWORD_CHARACTER_MAX, `Maximum characters: ${PASSWORD_CHARACTER_MAX}`),
   confirmPassword: z
     .string()
-    .min(8, `Minimum characters: ${PASSWORD_CHARACTER_MIN}`)
-    .max(60, `Maximum characters: ${PASSWORD_CHARACTER_MAX}`),
+    .min(PASSWORD_CHARACTER_MIN, `Minimum characters: ${PASSWORD_CHARACTER_MIN}`)
+    .max(PASSWORD_CHARACTER_MAX, `Maximum characters: ${PASSWORD_CHARACTER_MAX}`),
 })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -49,9 +58,14 @@ const formSchema = z.object({
   });
 
 const SignupForm = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: ""
@@ -59,19 +73,34 @@ const SignupForm = () => {
   });
 
   const onSubmit = async (formData: z.infer<typeof formSchema>) => {
-    const { email, password } = formData;
+    const { 
+      firstName, 
+      lastName, 
+      email, 
+      password 
+    } = formData;
+
+    setLoading(true);
 
     try {
       const { data, error } = await authClient.signUp.email({
-        name: "",
+        name: `${firstName} ${lastName}`,
         email: email,
         password: password,
+        callbackURL: "/success"
       });
 
       console.log(data);
-    } 
+
+      toast("Login success!");
+      router.push("/success");
+    }
     catch (error) {
       console.log(error);
+      toast("Failed to login")
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -84,8 +113,60 @@ const SignupForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form id={FORM_ID} onSubmit={form.handleSubmit(onSubmit)}>
+        <form 
+          id={FORM_ID} 
+          onSubmit={form.handleSubmit(onSubmit)}
+          aria-disabled={loading}
+        >
           <FieldGroup>
+            <div className="flex justify-center items-center gap-4">
+              <Controller
+                name="firstName"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      htmlFor="form-rhf-demo-title">
+                      First Name
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="form-rhf-demo-title"
+                      className="w-1/2"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Akira"
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="lastName"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      htmlFor="form-rhf-demo-title">
+                      Last Name
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="form-rhf-demo-title"
+                      className="w-1/2"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Kurusu"
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
             <Controller
               name="email"
               control={form.control}
