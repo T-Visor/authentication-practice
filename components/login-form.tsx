@@ -91,62 +91,67 @@ const LoginForm = () => {
       </CardHeader>
       <CardContent>
         <form id={FORM_ID} onSubmit={form.handleSubmit(onSubmit)}>
-          <FieldGroup aria-disabled={loading}>
-            <Controller
-              name="email"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel
-                    htmlFor="form-rhf-demo-title">
-                    Email
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-title"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="email@example.com"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="password"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-description">
-                    Password
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-description"
-                    type="password"
-                    placeholder="Password"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <div className="flex justify-between">
-              <div className="flex items-center gap-3">
-                <Checkbox id="rememberLogin" />
-                <Label htmlFor="rememberLogin">
-                  Remember me
+          <fieldset 
+            disabled={loading} 
+            className="opacity-100 disabled:opacity-60"
+          >
+            <FieldGroup aria-disabled={loading}>
+              <Controller
+                name="email"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      htmlFor="form-rhf-demo-title">
+                      Email
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="form-rhf-demo-title"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="email@example.com"
+                      autoComplete="off"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="password"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="form-rhf-demo-description">
+                      Password
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="form-rhf-demo-description"
+                      type="password"
+                      placeholder="Password"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <div className="flex justify-between">
+                <div className="flex items-center gap-3">
+                  <Checkbox id="rememberLogin" />
+                  <Label htmlFor="rememberLogin">
+                    Remember me
+                  </Label>
+                </div>
+                <Label className="underline hover:cursor-pointer">
+                  Forgot password?
                 </Label>
               </div>
-              <Label className="underline hover:cursor-pointer">
-                Forgot password?
-              </Label>
-            </div>
-          </FieldGroup>
+            </FieldGroup>
+          </fieldset>
         </form>
       </CardContent>
       <CardFooter>

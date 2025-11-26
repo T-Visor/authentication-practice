@@ -94,7 +94,7 @@ const SignupForm = () => {
         router.push("/success");
       },
       onError: (context) => {
-        toast.error("Failed to login");
+        toast.error("Failed to sign up");
       },
     });
 
@@ -114,23 +114,73 @@ const SignupForm = () => {
           id={FORM_ID}
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <FieldGroup aria-disabled={loading}>
-            <div className="flex justify-center items-center gap-4">
+          <fieldset
+            disabled={loading}
+            className="opacity-100 disabled:opacity-60"
+          >
+            <FieldGroup aria-disabled={loading}>
+              <div className="flex justify-center items-center gap-4">
+                <Controller
+                  name="firstName"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel
+                        htmlFor="form-rhf-demo-title">
+                        First Name
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id="form-rhf-demo-title"
+                        className="w-1/2"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Akira"
+                        autoComplete="off"
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+                <Controller
+                  name="lastName"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel
+                        htmlFor="form-rhf-demo-title">
+                        Last Name
+                      </FieldLabel>
+                      <Input
+                        {...field}
+                        id="form-rhf-demo-title"
+                        className="w-1/2"
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Kurusu"
+                        autoComplete="off"
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+              </div>
               <Controller
-                name="firstName"
+                name="email"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel
                       htmlFor="form-rhf-demo-title">
-                      First Name
+                      Email
                     </FieldLabel>
                     <Input
                       {...field}
                       id="form-rhf-demo-title"
-                      className="w-1/2"
                       aria-invalid={fieldState.invalid}
-                      placeholder="Akira"
+                      placeholder="email@example.com"
                       autoComplete="off"
                     />
                     {fieldState.invalid && (
@@ -140,21 +190,19 @@ const SignupForm = () => {
                 )}
               />
               <Controller
-                name="lastName"
+                name="password"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel
-                      htmlFor="form-rhf-demo-title">
-                      Last Name
+                    <FieldLabel htmlFor="form-rhf-demo-description">
+                      Password
                     </FieldLabel>
                     <Input
                       {...field}
-                      id="form-rhf-demo-title"
-                      className="w-1/2"
+                      id="form-rhf-demo-description"
+                      type="password"
+                      placeholder="Password"
                       aria-invalid={fieldState.invalid}
-                      placeholder="Kurusu"
-                      autoComplete="off"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -162,72 +210,29 @@ const SignupForm = () => {
                   </Field>
                 )}
               />
-            </div>
-            <Controller
-              name="email"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel
-                    htmlFor="form-rhf-demo-title">
-                    Email
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-title"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="email@example.com"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="password"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-description">
-                    Password
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-description"
-                    type="password"
-                    placeholder="Password"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="confirmPassword"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-description">
-                    Confirm Password
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-description"
-                    type="password"
-                    placeholder="Confirm Password"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </FieldGroup>
+              <Controller
+                name="confirmPassword"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="form-rhf-demo-description">
+                      Confirm Password
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="form-rhf-demo-description"
+                      type="password"
+                      placeholder="Confirm Password"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+          </fieldset>
         </form>
       </CardContent>
       <CardFooter>
