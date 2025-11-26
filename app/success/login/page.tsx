@@ -1,17 +1,30 @@
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-const SuccessPage = () => (
-  <div
-    className="
-      dark:bg-gray-900
-      h-screen w-screen overflow-auto
-      flex flex-col justify-center items-center gap-3
-    "
-  >
-    <span className="text-5xl">
-      Successful Login!
-    </span>
-  </div>
-);
+const SuccessPage = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  if (!session) {
+    redirect("/");
+  }
+
+  return (
+    <div
+      className="
+        dark:bg-gray-900
+        h-screen w-screen overflow-auto
+        flex flex-col justify-center items-center gap-3
+      "
+    >
+      <span className="text-5xl">
+        Successful Login!
+      </span>
+    </div>
+  );
+}
 
 
 export default SuccessPage;

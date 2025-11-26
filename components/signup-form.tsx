@@ -22,7 +22,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 const FORM_ID = "signUpForm";
 const USERNAME_CHARACTER_MIN = 8;
@@ -58,7 +57,6 @@ const formSchema = z.object({
   });
 
 const SignupForm = () => {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({

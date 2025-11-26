@@ -24,7 +24,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 const FORM_ID = "login-form";
 const USERNAME_CHARACTER_MIN = 2;
@@ -44,7 +43,6 @@ const formSchema = z.object({
 });
 
 const LoginForm = () => {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
