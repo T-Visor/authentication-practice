@@ -1,16 +1,10 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 
 const SuccessPage = async () => {
-
   const session = await auth.api.getSession({
     headers: await headers()
   });
-
-  if (!session) {
-    redirect("/");
-  }
 
   return (
     <div
@@ -24,7 +18,7 @@ const SuccessPage = async () => {
         Successful Sign Up!
       </span>
       <span className="text-4xl">
-        {session.user.name}
+        {session!.user.name}
       </span>
     </div>
   );
