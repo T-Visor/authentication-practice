@@ -1,30 +1,30 @@
 import { auth } from "@/lib/auth";
 import { NextResponse, NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/"];
 const REDIRECT_TO_FOR_LOGIN = "/";
 const REDIRECT_TO_WHEN_LOGGED_IN = "/success/login";
+const PUBLIC_PATHS_FOR_LOGIN = [REDIRECT_TO_FOR_LOGIN];
 
-export async function proxy(request: NextRequest) {
+export const proxy = async (request: NextRequest) => {
   const session = await auth.api.getSession({
     headers: request.headers
   });
   const { pathname } = request.nextUrl;
-  const isPublicPath = PUBLIC_PATHS.includes(pathname);
+  const isPublicPathForAuth = PUBLIC_PATHS_FOR_LOGIN.includes(pathname);
 
-  // Not logged in
-  if (!session && !isPublicPath) {
+  // Redirect user to login/sign-up page if they are not authenticated and try to access protected pages
+  if (!session && !isPublicPathForAuth) {
     const loginUrl = new URL(REDIRECT_TO_FOR_LOGIN, request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  // logged in
-  if (session && isPublicPath) {
+  // Redirect user if they try to access login/sign-up page when already logged in
+  if (session && isPublicPathForAuth) {
     return NextResponse.redirect(new URL(REDIRECT_TO_WHEN_LOGGED_IN, request.url));
   }
 
   return NextResponse.next();
-}
+};
 
 export const config = {
   matcher: [
