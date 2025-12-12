@@ -2,7 +2,12 @@
 
 import LoginForm from "@/components/login-form";
 import SignupForm from "@/components/signup-form";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
 
 const HomePage = () => (
   <div
@@ -39,6 +44,5 @@ const HomePage = () => (
     </Tabs>
   </div>
 );
-
 
 export default HomePage;

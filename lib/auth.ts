@@ -1,12 +1,14 @@
 import { betterAuth } from "better-auth";
-import Database from "better-sqlite3";
-import path from "path";
+import { Pool } from "pg";
 
-const dbPath = path.join(process.cwd(), "betterAuth.db");
-console.log("DB Path:", dbPath);
+const USERNAME = "user";
+const PASSWORD = "password";
+const DATABASE_NAME = "users";
 
 export const auth = betterAuth({
-  database: new Database(dbPath),
+  database: new Pool({
+    connectionString: `postgres://${USERNAME}:${PASSWORD}@localhost:5432/${DATABASE_NAME}`,
+  }),
   emailAndPassword: {
     enabled: true,
   },
