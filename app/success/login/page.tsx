@@ -1,10 +1,12 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+"use client";
 
-const SuccessPage = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  });
+import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+
+const SuccessPage = () => {
+  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
 
   return (
     <div
@@ -14,12 +16,35 @@ const SuccessPage = async () => {
         flex flex-col justify-center items-center gap-3
       "
     >
-      <span className="text-5xl">
-        Welcome back!
-      </span>
-      <span className="text-4xl">
-        {session!.user.name}
-      </span>
+      {isPending && <div>Loading...</div>}
+      {session 
+        ?
+        <>
+          <span className="text-5xl">
+            Welcome back!
+          </span>
+          <span className="text-4xl">
+            {session!.user.name}
+          </span>
+          <Button
+            variant="secondary"
+            className="py-6"
+            onClick={async () => {
+              await authClient.signOut({
+                fetchOptions: {
+                  onSuccess: () => {
+                    router.push("/"); // redirect to login page
+                  },
+                },
+              });
+            }}
+          >
+            Sign Out
+          </Button>
+        </>
+        :
+        <div>Please sign in</div>
+      }
     </div>
   );
 };
