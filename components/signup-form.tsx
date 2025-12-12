@@ -22,7 +22,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
+const SUCCESS_URL = "/success/sign-up";
 const FORM_ID = "signUpForm";
 const USERNAME_CHARACTER_MIN = 8;
 const USERNAME_CHARACTER_MAX = 60;
@@ -57,6 +59,7 @@ const formSchema = z.object({
   });
 
 const SignupForm = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -82,7 +85,7 @@ const SignupForm = () => {
       name: `${firstName} ${lastName}`,
       email: email,
       password: password,
-      callbackURL: "/success/sign-up"
+      callbackURL: SUCCESS_URL
     }, {
       onRequest: () => {
         setLoading(true);
@@ -91,6 +94,9 @@ const SignupForm = () => {
         toast.error(context.error?.message ?? "Sign-up failed");
         console.error(context.error?.message);
       },
+      onSuccess: () => {
+        router.push(SUCCESS_URL);
+      }
     });
     setLoading(false);
   };
