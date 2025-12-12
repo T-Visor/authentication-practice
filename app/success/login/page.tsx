@@ -3,6 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import crypto from "crypto";
+
+const couchDbNameFromUserId = (userId: string) => {
+  const hash = crypto
+    .createHash("sha256")
+    .update(userId)
+    .digest("hex");
+  return `u_${hash}`;
+};
 
 const SuccessPage = () => {
   const { data: session } = authClient.useSession();
