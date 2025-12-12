@@ -26,20 +26,20 @@ import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 
 const FORM_ID = "login-form";
-const USERNAME_CHARACTER_MIN = 2;
+const USERNAME_CHARACTER_MIN = 4;
 const USERNAME_CHARACTER_MAX = 60;
-const PASSWORD_CHARACTER_MIN = 2;
+const PASSWORD_CHARACTER_MIN = 8;
 const PASSWORD_CHARACTER_MAX = 60;
 
 const formSchema = z.object({
   email: z
     .email("Invalid email")
-    .min(4, `Miniumum characters: ${USERNAME_CHARACTER_MIN}`)
-    .max(32, `Maximum characters: ${USERNAME_CHARACTER_MAX}`),
+    .min(USERNAME_CHARACTER_MIN, `Miniumum characters: ${USERNAME_CHARACTER_MIN}`)
+    .max(USERNAME_CHARACTER_MAX, `Maximum characters: ${USERNAME_CHARACTER_MAX}`),
   password: z
     .string()
-    .min(2, `Minimum characters: ${PASSWORD_CHARACTER_MIN}`)
-    .max(60, `Maximum characters: ${PASSWORD_CHARACTER_MAX}`),
+    .min(PASSWORD_CHARACTER_MIN, `Minimum characters: ${PASSWORD_CHARACTER_MIN}`)
+    .max(PASSWORD_CHARACTER_MAX, `Maximum characters: ${PASSWORD_CHARACTER_MAX}`),
 });
 
 const LoginForm = () => {
@@ -135,7 +135,7 @@ const LoginForm = () => {
                 aria-disabled={loading}
               >
                 <div className="flex items-center gap-3">
-                  <Checkbox id="rememberLogin" />
+                  <Checkbox id="rememberLogin" defaultChecked/>
                   <Label htmlFor="rememberLogin">
                     Remember me
                   </Label>

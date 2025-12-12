@@ -26,7 +26,7 @@ import { useRouter } from "next/navigation";
 
 const SUCCESS_URL = "/success/sign-up";
 const FORM_ID = "signUpForm";
-const USERNAME_CHARACTER_MIN = 8;
+const USERNAME_CHARACTER_MIN = 4;
 const USERNAME_CHARACTER_MAX = 60;
 const PASSWORD_CHARACTER_MIN = 8;
 const PASSWORD_CHARACTER_MAX = 60;

@@ -5,8 +5,17 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 const SuccessPage = () => {
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session } = authClient.useSession();
   const router = useRouter();
+  const signOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/");
+        }
+      }
+    });
+  };
 
   return (
     <div
@@ -16,38 +25,25 @@ const SuccessPage = () => {
         flex flex-col justify-center items-center gap-3
       "
     >
-      {isPending && <div>Loading...</div>}
-      {session 
-        ?
+      {session && (
         <>
           <span className="text-5xl">
             Welcome back!
           </span>
           <span className="text-4xl">
-            {session!.user.name}
+            {session.user.name}
           </span>
           <Button
             variant="secondary"
             className="py-6"
-            onClick={async () => {
-              await authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    router.push("/"); // redirect to login page
-                  },
-                },
-              });
-            }}
+            onClick={signOut}
           >
             Sign Out
           </Button>
         </>
-        :
-        <div>Please sign in</div>
-      }
+      )}
     </div>
   );
 };
-
 
 export default SuccessPage;
